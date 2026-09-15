@@ -1,0 +1,13 @@
+# Os nomes dos serviços também são seus endereços na rede interna do Compose.
+services:
+  db:
+    image: postgres:18-alpine
+    command: ["tail", "-f", "/dev/null"]
+
+  backend:
+    image: python:3.14-slim
+    command: ["tail", "-f", "/dev/null"]
+
+  frontend:
+    image: node:24-alpine
+    command: ["tail", "-f", "/dev/null"]
