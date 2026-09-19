@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppLayout } from './components/AppLayout'
+import { ResultsList } from './components/ResultsList'
 import { SearchForm } from './components/SearchForm'
 import './index.css'
 
@@ -29,6 +30,7 @@ createRoot(root).render(
         </p>
         <SearchForm />
       </section>
+      <ResultsList />
     </AppLayout>
   </StrictMode>,
 )
