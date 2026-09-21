@@ -1,0 +1,26 @@
+# Os nomes dos serviços também são seus endereços na rede interna do Compose.
+services:
+  db:
+    build: ./db
+    command: ["tail", "-f", "/dev/null"]
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # Publica só na própria máquina. A API continua usando db:5432 internamente.
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+
+  backend:
+    build: ./backend
+    command: ["tail", "-f", "/dev/null"]
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+  frontend:
+    build: ./frontend
+    command: ["tail", "-f", "/dev/null"]
