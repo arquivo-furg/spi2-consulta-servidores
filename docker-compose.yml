@@ -2,7 +2,6 @@
 services:
   db:
     build: ./db
-    command: ["tail", "-f", "/dev/null"]
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
