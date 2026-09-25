@@ -41,11 +41,11 @@ function ResultsFeedback({ view }: { view: Exclude<ResultsView, 'results'> }) {
   return (
     <section
       aria-labelledby="results-feedback-title"
-      className="mt-8 rounded-panel border border-border bg-surface p-6 text-center"
+      className="mt-8 rounded-panel border border-border bg-surface p-4 text-center sm:p-6"
       role={isError ? 'alert' : 'status'}
     >
       <h2
-        className="text-[23px] font-semibold text-primary"
+        className="text-xl font-semibold text-primary sm:text-[23px]"
         id="results-feedback-title"
       >
         {isError ? 'Erro na busca' : 'Nenhum resultado encontrado'}
@@ -71,7 +71,10 @@ export function ResultsList() {
 
   const resultsContent = (
     <section aria-labelledby="results-title" className="mt-8">
-      <h2 id="results-title" className="text-[23px] font-semibold text-primary">
+      <h2
+        id="results-title"
+        className="text-xl font-semibold text-primary sm:text-[23px]"
+      >
         Resultados de exemplo
       </h2>
       <p className="mt-2 text-[15px] text-body">
@@ -81,7 +84,7 @@ export function ResultsList() {
         {resultadosDaPagina.map((resultado) => (
           <li
             key={resultado.id}
-            className="rounded-panel border border-border bg-surface p-5 sm:p-6"
+            className="rounded-panel border border-border bg-surface p-4 sm:p-6"
           >
             <h3 className="break-words text-lg font-semibold text-primary">
               {resultado.nome}
@@ -129,13 +132,13 @@ export function ResultsList() {
         </p>
         <div
           aria-label="Selecionar estado simulado dos resultados"
-          className="mt-3 flex flex-wrap gap-2"
+          className="mt-3 flex flex-wrap gap-2 max-[359px]:grid max-[359px]:grid-cols-1"
           role="group"
         >
           {viewOptions.map((option) => (
             <button
               aria-pressed={view === option.value}
-              className={`min-h-10 rounded-pill border px-4 text-sm font-semibold transition-colors ${
+              className={`min-h-10 rounded-pill border px-4 text-sm font-semibold transition-colors max-[359px]:w-full ${
                 view === option.value
                   ? 'border-primary bg-primary text-white'
                   : 'border-primary bg-surface text-primary hover:bg-primary-hover hover:text-white'
