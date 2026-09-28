@@ -1,87 +1,56 @@
-import { useState } from 'react'
-import { Pagination } from './Pagination'
+export interface Servidor {
+  id: number
+  nome: string
+  cargo: string
+  uf: string | null
+  orgao: string
+}
 
-const resultadosMockados = [
-  {
-    id: 1,
-    nome: 'Pessoa Exemplo 1',
-    cargo: 'Analista administrativo',
-    uf: 'DF',
-    orgao: 'Órgão Exemplo A',
-  },
-  {
-    id: 2,
-    nome: 'Pessoa Exemplo 2',
-    cargo: 'Técnico em assuntos educacionais',
-    uf: 'SP',
-    orgao: 'Órgão Exemplo B',
-  },
-  {
-    id: 3,
-    nome: 'Pessoa Exemplo 3',
-    cargo: 'Assistente em administração',
-    uf: 'RJ',
-    orgao: 'Órgão Exemplo C',
-  },
-]
+interface ResultsListProps {
+  resultados: Servidor[]
+}
 
-const itensPorPagina = 2
-
-type ResultsView = 'results' | 'empty' | 'error'
-
-const viewOptions: { label: string; value: ResultsView }[] = [
-  { label: 'Resultados', value: 'results' },
-  { label: 'Nenhum resultado', value: 'empty' },
-  { label: 'Erro na busca', value: 'error' },
-]
-
-function ResultsFeedback({ view }: { view: Exclude<ResultsView, 'results'> }) {
-  const isError = view === 'error'
-
+function EmptyResults() {
   return (
     <section
       aria-labelledby="results-feedback-title"
       className="mt-8 rounded-panel border border-border bg-surface p-4 text-center sm:p-6"
-      role={isError ? 'alert' : 'status'}
+      role="status"
     >
       <h2
         className="text-xl font-semibold text-primary sm:text-[23px]"
         id="results-feedback-title"
       >
-        {isError ? 'Erro na busca' : 'Nenhum resultado encontrado'}
+        Nenhum resultado encontrado
       </h2>
       <p className="mt-2 text-[15px] leading-6 text-body">
-        {isError
-          ? 'Não foi possível concluir a busca simulada. Tente novamente.'
-          : 'Não há registros fictícios para os filtros informados.'}
+        Não há registros para os filtros informados.
       </p>
     </section>
   )
 }
 
-export function ResultsList() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [view, setView] = useState<ResultsView>('results')
-  const totalPages = Math.ceil(resultadosMockados.length / itensPorPagina)
-  const firstItem = (currentPage - 1) * itensPorPagina
-  const resultadosDaPagina = resultadosMockados.slice(
-    firstItem,
-    firstItem + itensPorPagina,
-  )
+export function ResultsList({ resultados }: ResultsListProps) {
+  if (resultados.length === 0) {
+    return <EmptyResults />
+  }
 
-  const resultsContent = (
+  return (
     <section aria-labelledby="results-title" className="mt-8">
       <h2
         id="results-title"
         className="text-xl font-semibold text-primary sm:text-[23px]"
       >
-        Resultados de exemplo
+        Resultados
       </h2>
       <p className="mt-2 text-[15px] text-body">
-        Os registros abaixo são fictícios.
+        {resultados.length}{' '}
+        {resultados.length === 1
+          ? 'registro encontrado.'
+          : 'registros encontrados.'}
       </p>
       <ul className="mt-5 grid gap-4">
-        {resultadosDaPagina.map((resultado) => (
+        {resultados.map((resultado) => (
           <li
             key={resultado.id}
             className="rounded-panel border border-border bg-surface p-4 sm:p-6"
@@ -116,44 +85,6 @@ export function ResultsList() {
           </li>
         ))}
       </ul>
-      <Pagination
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        totalPages={totalPages}
-      />
     </section>
-  )
-
-  return (
-    <>
-      <div className="mt-8 rounded-panel border border-border bg-surface p-4">
-        <p className="text-sm font-semibold text-primary">
-          Simulação da listagem
-        </p>
-        <div
-          aria-label="Selecionar estado simulado dos resultados"
-          className="mt-3 flex flex-wrap gap-2 max-[359px]:grid max-[359px]:grid-cols-1"
-          role="group"
-        >
-          {viewOptions.map((option) => (
-            <button
-              aria-pressed={view === option.value}
-              className={`min-h-10 rounded-pill border px-4 text-sm font-semibold transition-colors max-[359px]:w-full ${
-                view === option.value
-                  ? 'border-primary bg-primary text-white'
-                  : 'border-primary bg-surface text-primary hover:bg-primary-hover hover:text-white'
-              }`}
-              key={option.value}
-              onClick={() => setView(option.value)}
-              type="button"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {view === 'results' ? resultsContent : <ResultsFeedback view={view} />}
-    </>
   )
 }

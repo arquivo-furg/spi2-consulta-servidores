@@ -1,18 +1,29 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppLayout } from './components/AppLayout'
-import { ResultsList } from './components/ResultsList'
+import { ResultsList, type Servidor } from './components/ResultsList'
 import { SearchForm } from './components/SearchForm'
 import './index.css'
 
-const root = document.getElementById('root')
+async function buscarServidores(nome?: string) {
+  const search = nome === undefined ? '' : `?${new URLSearchParams({ nome })}`
+  const response = await fetch(`/api/servidores${search}`)
 
-if (!root) {
-  throw new Error('Elemento raiz nao encontrado')
+  return response.json() as Promise<Servidor[]>
 }
 
-createRoot(root).render(
-  <StrictMode>
+function App() {
+  const [resultados, setResultados] = useState<Servidor[]>([])
+
+  useEffect(() => {
+    void buscarServidores().then(setResultados)
+  }, [])
+
+  function handleSearch(nome: string) {
+    void buscarServidores(nome).then(setResultados)
+  }
+
+  return (
     <AppLayout>
       <section
         aria-labelledby="page-title"
@@ -31,9 +42,21 @@ createRoot(root).render(
           Consulte informações de aposentados, carreiras e cargos em uma
           interface simples e organizada.
         </p>
-        <SearchForm />
+        <SearchForm onSearch={handleSearch} />
       </section>
-      <ResultsList />
+      <ResultsList resultados={resultados} />
     </AppLayout>
+  )
+}
+
+const root = document.getElementById('root')
+
+if (!root) {
+  throw new Error('Elemento raiz nao encontrado')
+}
+
+createRoot(root).render(
+  <StrictMode>
+    <App />
   </StrictMode>,
 )
