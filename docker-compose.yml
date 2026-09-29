@@ -9,17 +9,42 @@ services:
     # Publica só na própria máquina. A API continua usando db:5432 internamente.
     ports:
       - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
-    command: ["tail", "-f", "/dev/null"]
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db:/app/db:ro
+      - ./dados:/dados:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      # A primeira carga trata todos os meses locais antes de liberar a API.
+      start_period: 30m
 
   frontend:
     build: ./frontend
-    command: ["tail", "-f", "/dev/null"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_PROXY_TARGET: http://backend:8000
+    ports:
+      - "5173:4173"
