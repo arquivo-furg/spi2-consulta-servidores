@@ -1,9 +1,30 @@
+import re
+
 from flask import Flask, jsonify, request
 
 from database import get_connection
 
 
 app = Flask(__name__)
+
+ALLOWED_PARAMETERS = {
+    "nome",
+    "cargo",
+    "uf",
+    "orgao",
+    "similar",
+    "limit",
+    "page",
+    "page_size",
+}
+SEARCH_VALUE_PATTERN = re.compile(r"[\w\sÀ-ÿ.,'()&/+ºª-]+", re.UNICODE)
+SQL_INJECTION_PATTERN = re.compile(
+    r"--|/\*|\*/|;|\bunion\s+select\b|\bdrop\s+table\b|"
+    r"\binsert\s+into\b|\bdelete\s+from\b|\bupdate\s+\w+\s+set\b|"
+    r"\balter\s+table\b|\bcreate\s+table\b|\btruncate\s+table\b|"
+    r"\bpg_sleep\s*\(|\b(?:or|and)\b\s+['\"\d].*=",
+    re.IGNORECASE,
+)
 
 
 @app.get("/health")
@@ -18,13 +39,92 @@ def serialize_servers(servers):
     ]
 
 
+def normalize_search_value(parameter, value):
+    normalized = " ".join(value.split())
+
+    if parameter == "similar":
+        normalized = " ".join(normalized.replace("%", " ").split())
+
+    if (
+        not normalized
+        or normalized in {"'", '"'}
+        or SEARCH_VALUE_PATTERN.fullmatch(normalized) is None
+        or SQL_INJECTION_PATTERN.search(normalized) is not None
+    ):
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    if parameter == "uf":
+        if re.fullmatch(r"[A-Za-z]{2}", normalized) is None:
+            raise ValueError("parametro invalido: uf")
+        return normalized.upper()
+
+    return normalized
+
+
+def parse_positive_integer(parameter, default, maximum=None):
+    raw_value = request.args.get(parameter)
+
+    if raw_value is None:
+        return default
+
+    if re.fullmatch(r"[0-9]+", raw_value) is None:
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    value = int(raw_value)
+    if value < 1 or (maximum is not None and value > maximum):
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    return value
+
+
 @app.get("/api/servidores")
 def search_servers():
-    name = request.args.get("nome")
-    role = request.args.get("cargo")
-    state = request.args.get("uf")
-    agency = request.args.get("orgao")
-    similar = request.args.get("similar")
+    unknown_parameters = sorted(set(request.args) - ALLOWED_PARAMETERS)
+    if unknown_parameters:
+        return jsonify({"erro": f"parametro desconhecido: {unknown_parameters[0]}"}), 400
+
+    try:
+        name = (
+            normalize_search_value("nome", request.args["nome"])
+            if "nome" in request.args
+            else None
+        )
+        role = (
+            normalize_search_value("cargo", request.args["cargo"])
+            if "cargo" in request.args
+            else None
+        )
+        state = (
+            normalize_search_value("uf", request.args["uf"])
+            if "uf" in request.args
+            else None
+        )
+        agency = (
+            normalize_search_value("orgao", request.args["orgao"])
+            if "orgao" in request.args
+            else None
+        )
+        similar = (
+            normalize_search_value("similar", request.args["similar"])
+            if "similar" in request.args
+            else None
+        )
+
+        if similar is None and "limit" in request.args:
+            raise ValueError("parametro limit exige similar")
+
+        similar_limit = (
+            parse_positive_integer("limit", 100, maximum=100)
+            if similar is not None
+            else None
+        )
+
+        pagination_requested = "page" in request.args or "page_size" in request.args
+        if pagination_requested:
+            page = parse_positive_integer("page", 1, maximum=2_147_483_647)
+            page_size = parse_positive_integer("page_size", 100, maximum=100)
+    except ValueError as error:
+        return jsonify({"erro": str(error)}), 400
 
     filters = (
         ("servidor.nome", name),
@@ -43,7 +143,6 @@ def search_servers():
             values.append(value)
 
     if similar is not None:
-        similar = " ".join(similar.replace("%", " ").split())
         conditions.append("servidor.nome %% %s")
         values.append(similar)
 
@@ -57,19 +156,13 @@ def search_servers():
     order_clause = "servidor.id"
     limit_clause = ""
     offset_clause = ""
-    similar_limit = None
 
     if similar is not None:
         order_clause = "similarity(servidor.nome, %s) DESC, servidor.id"
         values.append(similar)
-        similar_limit = min(int(request.args.get("limit", 100)), 100)
-
-    pagination_requested = "page" in request.args or "page_size" in request.args
     total = None
 
     if pagination_requested:
-        page = int(request.args.get("page", 1))
-        page_size = int(request.args.get("page_size", 100))
         offset = (page - 1) * page_size
 
         with get_connection() as connection:
