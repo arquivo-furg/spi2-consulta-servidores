@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask, jsonify, request
 
 from database import get_connection
@@ -5,18 +7,124 @@ from database import get_connection
 
 app = Flask(__name__)
 
+ALLOWED_PARAMETERS = {
+    "nome",
+    "cargo",
+    "uf",
+    "orgao",
+    "similar",
+    "limit",
+    "page",
+    "page_size",
+}
+SEARCH_VALUE_PATTERN = re.compile(r"[\w\sÀ-ÿ.,'()&/+ºª-]+", re.UNICODE)
+SQL_INJECTION_PATTERN = re.compile(
+    r"--|/\*|\*/|;|\bunion\s+select\b|\bdrop\s+table\b|"
+    r"\binsert\s+into\b|\bdelete\s+from\b|\bupdate\s+\w+\s+set\b|"
+    r"\balter\s+table\b|\bcreate\s+table\b|\btruncate\s+table\b|"
+    r"\bpg_sleep\s*\(|\b(?:or|and)\b\s+['\"\d].*=",
+    re.IGNORECASE,
+)
+
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def serialize_servers(servers):
+    return [
+        {"id": id_, "nome": name, "cargo": role, "uf": state, "orgao": agency}
+        for id_, name, role, state, agency in servers
+    ]
+
+
+def normalize_search_value(parameter, value):
+    normalized = " ".join(value.split())
+
+    if parameter == "similar":
+        normalized = " ".join(normalized.replace("%", " ").split())
+
+    if (
+        not normalized
+        or normalized in {"'", '"'}
+        or SEARCH_VALUE_PATTERN.fullmatch(normalized) is None
+        or SQL_INJECTION_PATTERN.search(normalized) is not None
+    ):
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    if parameter == "uf":
+        if re.fullmatch(r"[A-Za-z]{2}", normalized) is None:
+            raise ValueError("parametro invalido: uf")
+        return normalized.upper()
+
+    return normalized
+
+
+def parse_positive_integer(parameter, default, maximum=None):
+    raw_value = request.args.get(parameter)
+
+    if raw_value is None:
+        return default
+
+    if re.fullmatch(r"[0-9]+", raw_value) is None:
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    value = int(raw_value)
+    if value < 1 or (maximum is not None and value > maximum):
+        raise ValueError(f"parametro invalido: {parameter}")
+
+    return value
+
+
 @app.get("/api/servidores")
 def search_servers():
-    name = request.args.get("nome")
-    role = request.args.get("cargo")
-    state = request.args.get("uf")
-    agency = request.args.get("orgao")
+    unknown_parameters = sorted(set(request.args) - ALLOWED_PARAMETERS)
+    if unknown_parameters:
+        return jsonify({"erro": f"parametro desconhecido: {unknown_parameters[0]}"}), 400
+
+    try:
+        name = (
+            normalize_search_value("nome", request.args["nome"])
+            if "nome" in request.args
+            else None
+        )
+        role = (
+            normalize_search_value("cargo", request.args["cargo"])
+            if "cargo" in request.args
+            else None
+        )
+        state = (
+            normalize_search_value("uf", request.args["uf"])
+            if "uf" in request.args
+            else None
+        )
+        agency = (
+            normalize_search_value("orgao", request.args["orgao"])
+            if "orgao" in request.args
+            else None
+        )
+        similar = (
+            normalize_search_value("similar", request.args["similar"])
+            if "similar" in request.args
+            else None
+        )
+
+        if similar is None and "limit" in request.args:
+            raise ValueError("parametro limit exige similar")
+
+        similar_limit = (
+            parse_positive_integer("limit", 100, maximum=100)
+            if similar is not None
+            else None
+        )
+
+        pagination_requested = "page" in request.args or "page_size" in request.args
+        if pagination_requested:
+            page = parse_positive_integer("page", 1, maximum=2_147_483_647)
+            page_size = parse_positive_integer("page_size", 100, maximum=100)
+    except ValueError as error:
+        return jsonify({"erro": str(error)}), 400
 
     filters = (
         ("servidor.nome", name),
@@ -34,11 +142,55 @@ def search_servers():
             conditions.append(f"{column} = %s")
             values.append(value)
 
+    if similar is not None:
+        conditions.append("servidor.nome %% %s")
+        values.append(similar)
+
     if not conditions:
         conditions.append("servidor.nome = %s")
         values.append(None)
 
     where_clause = " AND ".join(conditions)
+    # O COUNT usa só os filtros; ORDER BY, LIMIT e OFFSET acrescentam parâmetros depois.
+    where_values = tuple(values)
+    order_clause = "servidor.id"
+    limit_clause = ""
+    offset_clause = ""
+
+    if similar is not None:
+        order_clause = "similarity(servidor.nome, %s) DESC, servidor.id"
+        values.append(similar)
+    total = None
+
+    if pagination_requested:
+        offset = (page - 1) * page_size
+
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"""
+                    SELECT count(*)
+                    FROM servidor
+                    JOIN cargo ON cargo.id = servidor.cargo_id
+                    JOIN orgao ON orgao.id = servidor.orgao_id
+                    WHERE {where_clause}
+                    """,
+                    where_values,
+                )
+                total = cursor.fetchone()[0]
+
+        if similar_limit is not None:
+            total = min(total, similar_limit)
+            # A última página não pode ultrapassar o limite global da similaridade.
+            page_size = min(page_size, max(total - offset, 0))
+
+        values.append(page_size)
+        values.append(offset)
+        limit_clause = "LIMIT %s"
+        offset_clause = "OFFSET %s"
+    elif similar_limit is not None:
+        values.append(similar_limit)
+        limit_clause = "LIMIT %s"
 
     with get_connection() as connection:
         with connection.cursor() as cursor:
@@ -53,18 +205,20 @@ def search_servers():
                 JOIN cargo ON cargo.id = servidor.cargo_id
                 JOIN orgao ON orgao.id = servidor.orgao_id
                 WHERE {where_clause}
-                ORDER BY servidor.id
+                ORDER BY {order_clause}
+                {limit_clause}
+                {offset_clause}
                 """,
                 tuple(values),
             )
             servers = cursor.fetchall()
 
-    return jsonify(
-        [
-            {"id": id_, "nome": name, "cargo": role, "uf": state, "orgao": agency}
-            for id_, name, role, state, agency in servers
-        ]
-    )
+    data = serialize_servers(servers)
+
+    if pagination_requested:
+        return jsonify({"dados": data, "total": total})
+
+    return jsonify(data)
 
 
 if __name__ == "__main__":
