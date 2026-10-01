@@ -35,8 +35,14 @@ const estados = [
   'TO',
 ]
 
+export interface SearchFormValues {
+  limite: string
+  modoNome: 'exata' | 'similar'
+  nome: string
+}
+
 interface SearchFormProps {
-  onSearch: (nome: string) => void
+  onSearch: (values: SearchFormValues) => void
 }
 
 export function SearchForm({ onSearch }: SearchFormProps) {
@@ -44,7 +50,12 @@ export function SearchForm({ onSearch }: SearchFormProps) {
     // React recebe os filtros juntos; o envio HTTP fica no componente principal.
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    onSearch(String(formData.get('nome') ?? ''))
+    onSearch({
+      limite: String(formData.get('limite') ?? ''),
+      modoNome:
+        formData.get('modoNome') === 'similar' ? 'similar' : 'exata',
+      nome: String(formData.get('nome') ?? ''),
+    })
   }
 
   return (
@@ -60,6 +71,30 @@ export function SearchForm({ onSearch }: SearchFormProps) {
           name="nome"
           placeholder="Digite o nome"
           type="text"
+        />
+      </label>
+
+      <label className={labelClassName}>
+        Tipo de busca por nome
+        <select
+          className={`${fieldClassName} cursor-pointer`}
+          defaultValue="exata"
+          name="modoNome"
+        >
+          <option value="exata">Exata</option>
+          <option value="similar">Similaridade</option>
+        </select>
+      </label>
+
+      <label className={labelClassName}>
+        Limite da busca por similaridade
+        <input
+          className={fieldClassName}
+          defaultValue="100"
+          max="100"
+          min="1"
+          name="limite"
+          type="number"
         />
       </label>
 

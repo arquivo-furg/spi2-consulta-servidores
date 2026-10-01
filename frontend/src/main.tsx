@@ -2,11 +2,28 @@ import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppLayout } from './components/AppLayout'
 import { ResultsList, type Servidor } from './components/ResultsList'
-import { SearchForm } from './components/SearchForm'
+import {
+  SearchForm,
+  type SearchFormValues,
+} from './components/SearchForm'
 import './index.css'
 
-async function buscarServidores(nome?: string) {
-  const search = nome === undefined ? '' : `?${new URLSearchParams({ nome })}`
+async function buscarServidores(values?: SearchFormValues) {
+  const searchParams = new URLSearchParams()
+
+  if (values?.nome) {
+    if (values.modoNome === 'similar') {
+      searchParams.set('similar', values.nome)
+
+      if (values.limite) {
+        searchParams.set('limit', values.limite)
+      }
+    } else {
+      searchParams.set('nome', values.nome)
+    }
+  }
+
+  const search = searchParams.size > 0 ? `?${searchParams}` : ''
   const response = await fetch(`/api/servidores${search}`)
 
   return response.json() as Promise<Servidor[]>
@@ -19,8 +36,8 @@ function App() {
     void buscarServidores().then(setResultados)
   }, [])
 
-  function handleSearch(nome: string) {
-    void buscarServidores(nome).then(setResultados)
+  function handleSearch(values: SearchFormValues) {
+    void buscarServidores(values).then(setResultados)
   }
 
   return (
