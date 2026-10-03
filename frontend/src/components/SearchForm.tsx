@@ -36,9 +36,12 @@ const estados = [
 ]
 
 export interface SearchFormValues {
+  cargo: string
   limite: string
   modoNome: 'exata' | 'similar'
   nome: string
+  orgao: string
+  uf: string
 }
 
 interface SearchFormProps {
@@ -51,10 +54,13 @@ export function SearchForm({ onSearch }: SearchFormProps) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     onSearch({
+      cargo: String(formData.get('cargo') ?? ''),
       limite: String(formData.get('limite') ?? ''),
       modoNome:
         formData.get('modoNome') === 'similar' ? 'similar' : 'exata',
       nome: String(formData.get('nome') ?? ''),
+      orgao: String(formData.get('orgao') ?? ''),
+      uf: String(formData.get('uf') ?? ''),
     })
   }
 
@@ -139,7 +145,7 @@ export function SearchForm({ onSearch }: SearchFormProps) {
           className="min-h-12 w-full rounded-pill bg-primary px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 sm:w-auto"
           type="submit"
         >
-          Buscar por nome
+          Buscar
         </button>
       </div>
     </form>
