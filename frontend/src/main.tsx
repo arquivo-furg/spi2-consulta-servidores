@@ -1,18 +1,61 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppLayout } from './components/AppLayout'
-import { ResultsList } from './components/ResultsList'
-import { SearchForm } from './components/SearchForm'
+import { ResultsList, type Servidor } from './components/ResultsList'
+import {
+  SearchForm,
+  type SearchFormValues,
+} from './components/SearchForm'
 import './index.css'
 
-const root = document.getElementById('root')
+async function buscarServidores(values?: SearchFormValues) {
+  const searchParams = new URLSearchParams()
 
-if (!root) {
-  throw new Error('Elemento raiz nao encontrado')
+  if (values) {
+    // O mesmo campo de nome vira nome ou similar, conforme a opção do formulário.
+    if (values.nome) {
+      if (values.modoNome === 'similar') {
+        searchParams.set('similar', values.nome)
+
+        if (values.limite) {
+          searchParams.set('limit', values.limite)
+        }
+      } else {
+        searchParams.set('nome', values.nome)
+      }
+    }
+
+    const exactFilters = [
+      ['cargo', values.cargo],
+      ['uf', values.uf],
+      ['orgao', values.orgao],
+    ]
+
+    for (const [parameter, value] of exactFilters) {
+      if (value) {
+        searchParams.set(parameter, value)
+      }
+    }
+  }
+
+  const search = searchParams.size > 0 ? `?${searchParams}` : ''
+  const response = await fetch(`/api/servidores${search}`)
+
+  return response.json() as Promise<Servidor[]>
 }
 
-createRoot(root).render(
-  <StrictMode>
+function App() {
+  const [resultados, setResultados] = useState<Servidor[]>([])
+
+  useEffect(() => {
+    void buscarServidores().then(setResultados)
+  }, [])
+
+  function handleSearch(values: SearchFormValues) {
+    void buscarServidores(values).then(setResultados)
+  }
+
+  return (
     <AppLayout>
       <section
         aria-labelledby="page-title"
@@ -31,9 +74,21 @@ createRoot(root).render(
           Consulte informações de aposentados, carreiras e cargos em uma
           interface simples e organizada.
         </p>
-        <SearchForm />
+        <SearchForm onSearch={handleSearch} />
       </section>
-      <ResultsList />
+      <ResultsList resultados={resultados} />
     </AppLayout>
+  )
+}
+
+const root = document.getElementById('root')
+
+if (!root) {
+  throw new Error('Elemento raiz nao encontrado')
+}
+
+createRoot(root).render(
+  <StrictMode>
+    <App />
   </StrictMode>,
 )
