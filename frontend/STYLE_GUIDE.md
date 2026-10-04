@@ -16,7 +16,7 @@ A identidade visual toma como referência as páginas de [Aposentados](https://d
 | `canvas` | `#F7FAFC` | Fundo geral das páginas |
 | `heading` | `#000000` | Títulos quando o azul principal não for usado |
 | `body` | `#464646` | Texto corrido |
-| `muted` | `#787878` | Metadados e textos secundários não essenciais |
+| `muted` | `#6B6B6B` | Metadados e textos secundários não essenciais |
 | `disabled` | `#B0B0B0` | Estados desabilitados |
 | `border` | `#E7E7E7` | Divisores e contornos sutis |
 

@@ -7,6 +7,8 @@ export interface Servidor {
 }
 
 interface ResultsListProps {
+  errorMessage: string | null
+  isLoading: boolean
   resultados: Servidor[]
   totalResultados: number
 }
@@ -65,6 +67,46 @@ function EmptyResults() {
   )
 }
 
+function LoadingResults() {
+  return (
+    <section
+      aria-busy="true"
+      aria-live="polite"
+      className="mt-8 flex min-h-32 items-center justify-center gap-3 rounded-panel border border-border bg-surface p-6 text-primary"
+      role="status"
+    >
+      <span
+        aria-hidden="true"
+        className="size-5 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none"
+      />
+      <span className="text-[15px] font-semibold">Buscando resultados...</span>
+    </section>
+  )
+}
+
+function ErrorResults({ message }: { message: string }) {
+  return (
+    <section
+      aria-labelledby="results-error-title"
+      className="mt-8 rounded-panel border border-border bg-surface p-4 sm:p-6"
+      role="alert"
+    >
+      <h2
+        className="text-xl font-semibold text-primary sm:text-[23px]"
+        id="results-error-title"
+      >
+        Não foi possível concluir a busca
+      </h2>
+      <p className="mt-2 break-words text-[15px] leading-6 text-body">
+        {message}
+      </p>
+      <p className="mt-2 text-[15px] leading-6 text-body">
+        Ajuste os filtros, se necessário, e tente novamente.
+      </p>
+    </section>
+  )
+}
+
 function SingleResult({ servidor }: ServidorDetailsProps) {
   return (
     <section aria-labelledby="single-result-title" className="mt-8">
@@ -85,9 +127,19 @@ function SingleResult({ servidor }: ServidorDetailsProps) {
 }
 
 export function ResultsList({
+  errorMessage,
+  isLoading,
   resultados,
   totalResultados,
 }: ResultsListProps) {
+  if (isLoading) {
+    return <LoadingResults />
+  }
+
+  if (errorMessage) {
+    return <ErrorResults message={errorMessage} />
+  }
+
   if (resultados.length === 0) {
     return <EmptyResults />
   }
