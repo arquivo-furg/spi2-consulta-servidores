@@ -45,10 +45,11 @@ export interface SearchFormValues {
 }
 
 interface SearchFormProps {
+  isLoading: boolean
   onSearch: (values: SearchFormValues) => void
 }
 
-export function SearchForm({ onSearch }: SearchFormProps) {
+export function SearchForm({ isLoading, onSearch }: SearchFormProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     // React recebe os filtros juntos; o envio HTTP fica no componente principal.
     event.preventDefault()
@@ -67,6 +68,7 @@ export function SearchForm({ onSearch }: SearchFormProps) {
   return (
     <form
       aria-label="Filtros de busca"
+      aria-busy={isLoading}
       className="mt-8 grid min-w-0 gap-5 rounded-panel border border-border bg-canvas p-5 md:grid-cols-2 md:p-6"
       onSubmit={handleSubmit}
     >
@@ -142,10 +144,11 @@ export function SearchForm({ onSearch }: SearchFormProps) {
 
       <div className="flex justify-end md:col-span-2">
         <button
-          className="min-h-12 w-full rounded-pill bg-primary px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 sm:w-auto"
+          className="min-h-12 w-full rounded-pill bg-primary px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 disabled:cursor-wait disabled:bg-disabled sm:w-auto"
+          disabled={isLoading}
           type="submit"
         >
-          Buscar
+          {isLoading ? 'Buscando...' : 'Buscar'}
         </button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppLayout } from './components/AppLayout'
+import { Pagination } from './components/Pagination'
 import { ResultsList, type Servidor } from './components/ResultsList'
 import {
   SearchForm,
@@ -8,7 +9,36 @@ import {
 } from './components/SearchForm'
 import './index.css'
 
-async function buscarServidores(values?: SearchFormValues) {
+const PAGE_SIZE = 10
+
+interface ApiResponse {
+  sucesso: boolean
+  mensagem: string
+  dados: Servidor[] | null
+  paginacao?: {
+    pagina: number
+    tamanho_pagina: number
+    total_registros: number
+    total_paginas: number
+  }
+}
+
+// O JSON vem de fora do TypeScript; conferir o formato antes de usar na tela.
+function isApiResponse(payload: unknown): payload is ApiResponse {
+  if (!payload || typeof payload !== 'object') {
+    return false
+  }
+
+  const candidate = payload as Partial<ApiResponse>
+
+  return (
+    typeof candidate.sucesso === 'boolean' &&
+    typeof candidate.mensagem === 'string' &&
+    'dados' in candidate
+  )
+}
+
+async function buscarServidores(page: number, values?: SearchFormValues) {
   const searchParams = new URLSearchParams()
 
   if (values) {
@@ -38,21 +68,95 @@ async function buscarServidores(values?: SearchFormValues) {
     }
   }
 
-  const search = searchParams.size > 0 ? `?${searchParams}` : ''
-  const response = await fetch(`/api/servidores${search}`)
+  searchParams.set('page', String(page))
+  searchParams.set('page_size', String(PAGE_SIZE))
 
-  return response.json() as Promise<Servidor[]>
+  let response: Response
+
+  try {
+    response = await fetch(`/api/servidores?${searchParams}`)
+  } catch {
+    throw new Error('Não foi possível conectar ao serviço de dados.')
+  }
+
+  let payload: unknown
+
+  try {
+    payload = await response.json()
+  } catch {
+    throw new Error('O serviço retornou uma resposta inválida.')
+  }
+
+  if (!isApiResponse(payload)) {
+    throw new Error('O serviço retornou uma resposta inválida.')
+  }
+
+  if (!response.ok || !payload.sucesso) {
+    throw new Error(payload.mensagem || 'Não foi possível concluir a busca.')
+  }
+
+  return {
+    resultados: payload.dados ?? [],
+    totalPaginas: payload.paginacao?.total_paginas ?? 0,
+    totalResultados: payload.paginacao?.total_registros ?? 0,
+  }
 }
 
 function App() {
+  const [filtros, setFiltros] = useState<SearchFormValues>()
+  const [paginaAtual, setPaginaAtual] = useState(1)
   const [resultados, setResultados] = useState<Servidor[]>([])
+  const [totalPaginas, setTotalPaginas] = useState(0)
+  const [totalResultados, setTotalResultados] = useState(0)
+  const [emCarregamento, setEmCarregamento] = useState(true)
+  const [mensagemErro, setMensagemErro] = useState<string | null>(null)
+
+  function atualizarResultados({
+    resultados: novosResultados,
+    totalPaginas: novoTotalPaginas,
+    totalResultados: novoTotalResultados,
+  }: Awaited<ReturnType<typeof buscarServidores>>) {
+    setResultados(novosResultados)
+    setTotalPaginas(novoTotalPaginas)
+    setTotalResultados(novoTotalResultados)
+  }
+
+  async function executarBusca(page: number, values?: SearchFormValues) {
+    setEmCarregamento(true)
+    setMensagemErro(null)
+
+    try {
+      const resposta = await buscarServidores(page, values)
+      atualizarResultados(resposta)
+    } catch (error) {
+      setResultados([])
+      setTotalPaginas(0)
+      setTotalResultados(0)
+      setMensagemErro(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível concluir a busca.',
+      )
+    } finally {
+      setEmCarregamento(false)
+    }
+  }
 
   useEffect(() => {
-    void buscarServidores().then(setResultados)
+    void executarBusca(1)
   }, [])
 
   function handleSearch(values: SearchFormValues) {
-    void buscarServidores(values).then(setResultados)
+    // Filtro novo sempre começa na página 1, não na página da consulta anterior.
+    setFiltros(values)
+    setPaginaAtual(1)
+    void executarBusca(1, values)
+  }
+
+  function handlePageChange(page: number) {
+    // Reusa os filtros da busca enviada, mesmo se o formulário estiver sendo editado.
+    setPaginaAtual(page)
+    void executarBusca(page, filtros)
   }
 
   return (
@@ -74,9 +178,21 @@ function App() {
           Consulte informações de aposentados, carreiras e cargos em uma
           interface simples e organizada.
         </p>
-        <SearchForm onSearch={handleSearch} />
+        <SearchForm isLoading={emCarregamento} onSearch={handleSearch} />
       </section>
-      <ResultsList resultados={resultados} />
+      <ResultsList
+        errorMessage={mensagemErro}
+        isLoading={emCarregamento}
+        resultados={resultados}
+        totalResultados={totalResultados}
+      />
+      {!emCarregamento && !mensagemErro && totalPaginas > 1 && (
+        <Pagination
+          currentPage={paginaAtual}
+          onPageChange={handlePageChange}
+          totalPages={totalPaginas}
+        />
+      )}
     </AppLayout>
   )
 }
