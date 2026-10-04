@@ -8,6 +8,41 @@ export interface Servidor {
 
 interface ResultsListProps {
   resultados: Servidor[]
+  totalResultados: number
+}
+
+interface ServidorDetailsProps {
+  servidor: Servidor
+}
+
+// UF nula é ausência na fonte, não um campo para completar com outra informação.
+function ServidorDetails({ servidor }: ServidorDetailsProps) {
+  return (
+    <dl className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-3">
+      <div>
+        <dt className="text-xs font-semibold uppercase tracking-wide text-body">
+          Cargo
+        </dt>
+        <dd className="mt-1 break-words text-[15px] text-body">
+          {servidor.cargo}
+        </dd>
+      </div>
+      <div>
+        <dt className="text-xs font-semibold uppercase tracking-wide text-body">
+          UF
+        </dt>
+        <dd className="mt-1 text-[15px] text-body">{servidor.uf}</dd>
+      </div>
+      <div>
+        <dt className="text-xs font-semibold uppercase tracking-wide text-body">
+          Órgão
+        </dt>
+        <dd className="mt-1 break-words text-[15px] text-body">
+          {servidor.orgao}
+        </dd>
+      </div>
+    </dl>
+  )
 }
 
 function EmptyResults() {
@@ -30,9 +65,36 @@ function EmptyResults() {
   )
 }
 
-export function ResultsList({ resultados }: ResultsListProps) {
+function SingleResult({ servidor }: ServidorDetailsProps) {
+  return (
+    <section aria-labelledby="single-result-title" className="mt-8">
+      <h2
+        className="text-xl font-semibold text-primary sm:text-[23px]"
+        id="single-result-title"
+      >
+        Resultado encontrado
+      </h2>
+      <article className="mt-5 rounded-panel border border-border bg-surface p-4 sm:p-6">
+        <h3 className="break-words text-lg font-semibold text-primary">
+          {servidor.nome}
+        </h3>
+        <ServidorDetails servidor={servidor} />
+      </article>
+    </section>
+  )
+}
+
+export function ResultsList({
+  resultados,
+  totalResultados,
+}: ResultsListProps) {
   if (resultados.length === 0) {
     return <EmptyResults />
+  }
+
+  // Uma última página com uma linha não significa que só existe um resultado no total.
+  if (totalResultados === 1 && resultados.length === 1) {
+    return <SingleResult servidor={resultados[0]} />
   }
 
   return (
@@ -44,8 +106,8 @@ export function ResultsList({ resultados }: ResultsListProps) {
         Resultados
       </h2>
       <p className="mt-2 text-[15px] text-body">
-        {resultados.length}{' '}
-        {resultados.length === 1
+        {totalResultados}{' '}
+        {totalResultados === 1
           ? 'registro encontrado.'
           : 'registros encontrados.'}
       </p>
@@ -58,30 +120,7 @@ export function ResultsList({ resultados }: ResultsListProps) {
             <h3 className="break-words text-lg font-semibold text-primary">
               {resultado.nome}
             </h3>
-            <dl className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-3">
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-body">
-                  Cargo
-                </dt>
-                <dd className="mt-1 break-words text-[15px] text-body">
-                  {resultado.cargo}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-body">
-                  UF
-                </dt>
-                <dd className="mt-1 text-[15px] text-body">{resultado.uf}</dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-body">
-                  Órgão
-                </dt>
-                <dd className="mt-1 break-words text-[15px] text-body">
-                  {resultado.orgao}
-                </dd>
-              </div>
-            </dl>
+            <ServidorDetails servidor={resultado} />
           </li>
         ))}
       </ul>

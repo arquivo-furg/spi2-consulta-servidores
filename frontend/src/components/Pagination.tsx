@@ -5,14 +5,20 @@ interface PaginationProps {
 }
 
 const buttonClassName =
-  'min-h-10 rounded-pill border border-primary px-4 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:border-border disabled:bg-surface disabled:text-disabled'
+  'min-h-10 rounded-pill border border-primary px-4 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 disabled:cursor-not-allowed disabled:border-border disabled:bg-surface disabled:text-disabled'
 
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
 }: PaginationProps) {
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
+  // Mostra até cinco páginas, deslocando a faixa quando chega perto do fim.
+  const firstPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4))
+  const visiblePages = Math.min(5, totalPages)
+  const pages = Array.from(
+    { length: visiblePages },
+    (_, index) => firstPage + index,
+  )
 
   return (
     <nav
@@ -32,7 +38,7 @@ export function Pagination({
         <button
           aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Página ${page}`}
-          className={`size-10 rounded-pill border text-sm font-semibold transition-colors ${
+          className={`size-10 rounded-pill border text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 ${
             page === currentPage
               ? 'border-primary bg-primary text-white'
               : 'border-primary bg-surface text-primary hover:bg-primary-hover hover:text-white'
