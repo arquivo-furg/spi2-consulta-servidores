@@ -279,7 +279,7 @@ def search_servers():
     offset_clause = ""
 
     if similar is not None:
-        order_clause = "similarity(servidor.nome, %s) DESC, servidor.id"
+        order_clause = "servidor.nome <-> %s, servidor.id"
         values.append(similar)
     total = None
 
