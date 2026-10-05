@@ -1,0 +1,504 @@
+{
+  "task": "PROJ-45",
+  "executado_em_utc": "2026-10-04T22:57:03.905492+00:00",
+  "alvo": "http://localhost:8000",
+  "ambiente": {
+    "stack": "Docker Compose com Flask/Gunicorn e PostgreSQL reais",
+    "timeout_banco_ms": 2000,
+    "limite_concorrencia_api": 2,
+    "registros_fixture": 2
+  },
+  "resumo": {
+    "total": 20,
+    "aprovados": 20,
+    "reprovados": 0,
+    "criterio_atendido": true
+  },
+  "casos": [
+    {
+      "id": "ERR-01A",
+      "cenario": "filtro vazio",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": ""
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 29.65,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-01B",
+      "cenario": "filtro somente com espacos",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "   "
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 20.67,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-02",
+      "cenario": "tentativa representativa de SQL injection",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "' OR '1'='1' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.08,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-03",
+      "cenario": "nome valido ausente",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "NOME QA INEXISTENTE 20261004"
+        }
+      },
+      "resposta": {
+        "status": 404,
+        "tempo_ms": 29.62,
+        "corpo": {
+          "dados": null,
+          "mensagem": "nome nao encontrado",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "API-07",
+      "cenario": "nome com multiplos registros paginados",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "page": "1",
+          "page_size": "1"
+        }
+      },
+      "resposta": {
+        "status": 200,
+        "tempo_ms": 33.12,
+        "corpo": {
+          "dados": [
+            {
+              "cargo": "CARGO QA",
+              "id": 990001,
+              "nome": "SERVIDOR QA DUPLICADO",
+              "orgao": "ORGAO QA",
+              "uf": "RS"
+            }
+          ],
+          "mensagem": "multiplos registros encontrados",
+          "paginacao": {
+            "pagina": 1,
+            "tamanho_pagina": 1,
+            "total_paginas": 2,
+            "total_registros": 2
+          },
+          "sucesso": true
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-04",
+      "cenario": "cargo fora do formato",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "###"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 21.82,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-05",
+      "cenario": "UF inexistente",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "ZZ"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 17.17,
+        "corpo": {
+          "dados": null,
+          "mensagem": "uf invalida",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-06",
+      "cenario": "orgao fora do formato",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "###"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.76,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-07A",
+      "cenario": "rota inexistente",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/rota-inexistente",
+        "parametros": {}
+      },
+      "resposta": {
+        "status": 404,
+        "tempo_ms": 15.84,
+        "corpo": {
+          "dados": null,
+          "mensagem": "recurso nao encontrado",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-07B",
+      "cenario": "pagina fora da faixa",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "page": "99",
+          "page_size": "1"
+        }
+      },
+      "resposta": {
+        "status": 404,
+        "tempo_ms": 29.68,
+        "corpo": {
+          "dados": null,
+          "mensagem": "pagina inexistente",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-10",
+      "cenario": "parametro desconhecido",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "desconhecido": "valor"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.54,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro desconhecido: desconhecido",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-11A",
+      "cenario": "limite nao numerico",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "SERVIDOR QA",
+          "limit": "abc"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.96,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: limit",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-11B",
+      "cenario": "limite acima do maximo",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "SERVIDOR QA",
+          "limit": "101"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.47,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: limit",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-11C",
+      "cenario": "pagina menor que um",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "page": "0"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 20.91,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: page",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-11D",
+      "cenario": "tamanho de pagina acima do maximo",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "page_size": "101"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.94,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: page_size",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-12A",
+      "cenario": "limite sem busca por similaridade",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "limit": "10"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 30.97,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro limit exige similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-12B",
+      "cenario": "combinacao com UF invalida",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "uf": "ZZ"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.57,
+        "corpo": {
+          "dados": null,
+          "mensagem": "uf invalida",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-08",
+      "cenario": "timeout por espera de bloqueio no PostgreSQL",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO"
+        }
+      },
+      "resposta": {
+        "status": 504,
+        "tempo_ms": 2030.27,
+        "corpo": {
+          "dados": null,
+          "mensagem": "tempo limite da consulta excedido",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      }
+    },
+    {
+      "id": "ERR-09",
+      "cenario": "excesso de buscas simultaneas",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO"
+        },
+        "quantidade": 12
+      },
+      "resposta": {
+        "status_por_quantidade": {
+          "429": 10,
+          "504": 2
+        },
+        "amostras_por_status": {
+          "429": {
+            "dados": null,
+            "mensagem": "limite de buscas simultaneas excedido",
+            "sucesso": false
+          },
+          "504": {
+            "dados": null,
+            "mensagem": "tempo limite da consulta excedido",
+            "sucesso": false
+          }
+        },
+        "tempos_ms": [
+          22.53,
+          22.65,
+          22.82,
+          23.08,
+          23.21,
+          23.28,
+          23.55,
+          23.9,
+          24.13,
+          24.14,
+          2024.36,
+          2025.22
+        ],
+        "erros_transporte": []
+      }
+    },
+    {
+      "id": "POS-01",
+      "cenario": "disponibilidade apos entradas invalidas, timeout e concorrencia",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/health",
+        "parametros": {}
+      },
+      "resposta": {
+        "status": 200,
+        "tempo_ms": 3.18,
+        "corpo": {
+          "dados": {
+            "status": "ok"
+          },
+          "mensagem": "api disponivel",
+          "sucesso": true
+        },
+        "erro_transporte": null
+      }
+    }
+  ]
+}
