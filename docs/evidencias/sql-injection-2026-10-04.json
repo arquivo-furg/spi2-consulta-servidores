@@ -1,0 +1,1456 @@
+{
+  "task": "PROJ-46",
+  "executado_em_utc": "2026-10-04T22:59:49.451656+00:00",
+  "alvo": "http://localhost:8000",
+  "ambiente": {
+    "stack": "Docker Compose com Flask/Gunicorn e PostgreSQL reais",
+    "endpoint_com_filtros": "/api/servidores",
+    "filtros_testados": [
+      "nome",
+      "cargo",
+      "uf",
+      "orgao",
+      "similar"
+    ]
+  },
+  "resumo": {
+    "total": 45,
+    "aprovados": 45,
+    "reprovados": 0,
+    "integridade_preservada": true,
+    "api_disponivel_ao_final": true,
+    "criterio_atendido": true
+  },
+  "integridade_banco": {
+    "antes": {
+      "tabelas": {
+        "cargo": true,
+        "orgao": true,
+        "uf": true,
+        "servidor": true
+      },
+      "contagens": {
+        "cargo": 2,
+        "orgao": 1,
+        "uf": 1,
+        "servidor": 2
+      },
+      "fingerprints": {
+        "cargo": "e29fee6431a5c7985c4260b5f22ddf1f",
+        "orgao": "d91c449e26d09d7e3cf418bccb9ca3a4",
+        "uf": "8cee5050eeb7c783e8bfaa73003ced3a",
+        "servidor": "54bfef743abbde962bd463317d0f4648"
+      }
+    },
+    "depois": {
+      "tabelas": {
+        "cargo": true,
+        "orgao": true,
+        "uf": true,
+        "servidor": true
+      },
+      "contagens": {
+        "cargo": 2,
+        "orgao": 1,
+        "uf": 1,
+        "servidor": 2
+      },
+      "fingerprints": {
+        "cargo": "e29fee6431a5c7985c4260b5f22ddf1f",
+        "orgao": "d91c449e26d09d7e3cf418bccb9ca3a4",
+        "uf": "8cee5050eeb7c783e8bfaa73003ced3a",
+        "servidor": "54bfef743abbde962bd463317d0f4648"
+      }
+    },
+    "contagens_e_fingerprints_identicos": true,
+    "todas_as_tabelas_presentes": true
+  },
+  "health_final": {
+    "status": 200,
+    "tempo_ms": 31.79,
+    "corpo": {
+      "dados": {
+        "status": "ok"
+      },
+      "mensagem": "api disponivel",
+      "sucesso": true
+    }
+  },
+  "casos": [
+    {
+      "id": "SQLI-01-NOME",
+      "payload_id": "SQLI-01",
+      "filtro_contaminado": "nome",
+      "payload": "'",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "'"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 45.65,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-01-CARGO",
+      "payload_id": "SQLI-01",
+      "filtro_contaminado": "cargo",
+      "payload": "'",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "'"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.69,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-01-UF",
+      "payload_id": "SQLI-01",
+      "filtro_contaminado": "uf",
+      "payload": "'",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "'"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.93,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-01-ORGAO",
+      "payload_id": "SQLI-01",
+      "filtro_contaminado": "orgao",
+      "payload": "'",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "'"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 21.87,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-01-SIMILAR",
+      "payload_id": "SQLI-01",
+      "filtro_contaminado": "similar",
+      "payload": "'",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "'",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 32.47,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-02-NOME",
+      "payload_id": "SQLI-02",
+      "filtro_contaminado": "nome",
+      "payload": "' OR '1'='1' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "' OR '1'='1' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 24.37,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-02-CARGO",
+      "payload_id": "SQLI-02",
+      "filtro_contaminado": "cargo",
+      "payload": "' OR '1'='1' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "' OR '1'='1' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.9,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-02-UF",
+      "payload_id": "SQLI-02",
+      "filtro_contaminado": "uf",
+      "payload": "' OR '1'='1' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "' OR '1'='1' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 27.31,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-02-ORGAO",
+      "payload_id": "SQLI-02",
+      "filtro_contaminado": "orgao",
+      "payload": "' OR '1'='1' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "' OR '1'='1' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.83,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-02-SIMILAR",
+      "payload_id": "SQLI-02",
+      "filtro_contaminado": "similar",
+      "payload": "' OR '1'='1' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "' OR '1'='1' --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 26.0,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-03-NOME",
+      "payload_id": "SQLI-03",
+      "filtro_contaminado": "nome",
+      "payload": "nome' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "nome' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.76,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-03-CARGO",
+      "payload_id": "SQLI-03",
+      "filtro_contaminado": "cargo",
+      "payload": "nome' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "nome' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 23.88,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-03-UF",
+      "payload_id": "SQLI-03",
+      "filtro_contaminado": "uf",
+      "payload": "nome' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "nome' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.01,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-03-ORGAO",
+      "payload_id": "SQLI-03",
+      "filtro_contaminado": "orgao",
+      "payload": "nome' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "nome' --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 4.52,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-03-SIMILAR",
+      "payload_id": "SQLI-03",
+      "filtro_contaminado": "similar",
+      "payload": "nome' --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "nome' --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 18.66,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-04-NOME",
+      "payload_id": "SQLI-04",
+      "filtro_contaminado": "nome",
+      "payload": "' UNION SELECT NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "' UNION SELECT NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 17.69,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-04-CARGO",
+      "payload_id": "SQLI-04",
+      "filtro_contaminado": "cargo",
+      "payload": "' UNION SELECT NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "' UNION SELECT NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.54,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-04-UF",
+      "payload_id": "SQLI-04",
+      "filtro_contaminado": "uf",
+      "payload": "' UNION SELECT NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "' UNION SELECT NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 27.35,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-04-ORGAO",
+      "payload_id": "SQLI-04",
+      "filtro_contaminado": "orgao",
+      "payload": "' UNION SELECT NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "' UNION SELECT NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.05,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-04-SIMILAR",
+      "payload_id": "SQLI-04",
+      "filtro_contaminado": "similar",
+      "payload": "' UNION SELECT NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "' UNION SELECT NULL --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.13,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-05-NOME",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "nome",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "'; DROP TABLE servidor; --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 31.28,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-05-CARGO",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "cargo",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "'; DROP TABLE servidor; --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 30.55,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-05-UF",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "uf",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "'; DROP TABLE servidor; --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 28.11,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-05-ORGAO",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "orgao",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "'; DROP TABLE servidor; --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.58,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-05-SIMILAR",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "similar",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "'; DROP TABLE servidor; --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 18.92,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-06-NOME",
+      "payload_id": "SQLI-06",
+      "filtro_contaminado": "nome",
+      "payload": "' OR pg_sleep(5) IS NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "' OR pg_sleep(5) IS NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.07,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-06-CARGO",
+      "payload_id": "SQLI-06",
+      "filtro_contaminado": "cargo",
+      "payload": "' OR pg_sleep(5) IS NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "' OR pg_sleep(5) IS NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 21.17,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-06-UF",
+      "payload_id": "SQLI-06",
+      "filtro_contaminado": "uf",
+      "payload": "' OR pg_sleep(5) IS NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "' OR pg_sleep(5) IS NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.37,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-06-ORGAO",
+      "payload_id": "SQLI-06",
+      "filtro_contaminado": "orgao",
+      "payload": "' OR pg_sleep(5) IS NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "' OR pg_sleep(5) IS NULL --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.64,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-06-SIMILAR",
+      "payload_id": "SQLI-06",
+      "filtro_contaminado": "similar",
+      "payload": "' OR pg_sleep(5) IS NULL --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "' OR pg_sleep(5) IS NULL --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 27.33,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-07-NOME",
+      "payload_id": "SQLI-07",
+      "filtro_contaminado": "nome",
+      "payload": "%27%20OR%20%271%27%3D%271%27%20--",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "%27%20OR%20%271%27%3D%271%27%20--"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 24.66,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-07-CARGO",
+      "payload_id": "SQLI-07",
+      "filtro_contaminado": "cargo",
+      "payload": "%27%20OR%20%271%27%3D%271%27%20--",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "%27%20OR%20%271%27%3D%271%27%20--"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.75,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-07-UF",
+      "payload_id": "SQLI-07",
+      "filtro_contaminado": "uf",
+      "payload": "%27%20OR%20%271%27%3D%271%27%20--",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "%27%20OR%20%271%27%3D%271%27%20--"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 14.95,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-07-ORGAO",
+      "payload_id": "SQLI-07",
+      "filtro_contaminado": "orgao",
+      "payload": "%27%20OR%20%271%27%3D%271%27%20--",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "%27%20OR%20%271%27%3D%271%27%20--"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 20.25,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-07-SIMILAR",
+      "payload_id": "SQLI-07",
+      "filtro_contaminado": "similar",
+      "payload": "%27%20OR%20%271%27%3D%271%27%20--",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "%27%20OR%20%271%27%3D%271%27%20--",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.98,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-08-NOME",
+      "payload_id": "SQLI-08",
+      "filtro_contaminado": "nome",
+      "payload": "\" OR \"1\"=\"1",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "\" OR \"1\"=\"1"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 20.89,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-08-CARGO",
+      "payload_id": "SQLI-08",
+      "filtro_contaminado": "cargo",
+      "payload": "\" OR \"1\"=\"1",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "cargo": "\" OR \"1\"=\"1"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.79,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-08-UF",
+      "payload_id": "SQLI-08",
+      "filtro_contaminado": "uf",
+      "payload": "\" OR \"1\"=\"1",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "uf": "\" OR \"1\"=\"1"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 31.92,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-08-ORGAO",
+      "payload_id": "SQLI-08",
+      "filtro_contaminado": "orgao",
+      "payload": "\" OR \"1\"=\"1",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "orgao": "\" OR \"1\"=\"1"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 15.95,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-08-SIMILAR",
+      "payload_id": "SQLI-08",
+      "filtro_contaminado": "similar",
+      "payload": "\" OR \"1\"=\"1",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "similar": "\" OR \"1\"=\"1",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 16.42,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-COMB-NOME",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "nome",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "'; DROP TABLE servidor; --",
+          "cargo": "CARGO QA",
+          "uf": "RS",
+          "orgao": "ORGAO QA"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 20.7,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: nome",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-COMB-CARGO",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "cargo",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "cargo": "'; DROP TABLE servidor; --",
+          "uf": "RS",
+          "orgao": "ORGAO QA"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 29.04,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: cargo",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-COMB-UF",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "uf",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "cargo": "CARGO QA",
+          "uf": "'; DROP TABLE servidor; --",
+          "orgao": "ORGAO QA"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 26.46,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: uf",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-COMB-ORGAO",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "orgao",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "cargo": "CARGO QA",
+          "uf": "RS",
+          "orgao": "'; DROP TABLE servidor; --"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 27.5,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: orgao",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    },
+    {
+      "id": "SQLI-COMB-SIMILAR",
+      "payload_id": "SQLI-05",
+      "filtro_contaminado": "similar",
+      "payload": "'; DROP TABLE servidor; --",
+      "resultado": "aprovado",
+      "requisicao": {
+        "metodo": "GET",
+        "rota": "/api/servidores",
+        "parametros": {
+          "nome": "SERVIDOR QA DUPLICADO",
+          "cargo": "CARGO QA",
+          "uf": "RS",
+          "orgao": "ORGAO QA",
+          "similar": "'; DROP TABLE servidor; --",
+          "limit": "100"
+        }
+      },
+      "resposta": {
+        "status": 400,
+        "tempo_ms": 17.56,
+        "corpo": {
+          "dados": null,
+          "mensagem": "parametro invalido: similar",
+          "sucesso": false
+        },
+        "erro_transporte": null
+      },
+      "verificacoes": {
+        "resposta_controlada": true,
+        "ataque_temporal_abaixo_de_4s": true,
+        "api_disponivel_apos_caso": true,
+        "health_status": 200
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "started_at_utc": "2026-10-04T20:50:35.910077+00:00",
+  "target": "http://localhost:8000/api/servidores?similar=Servidor&limit=100",
+  "health_check": "http://localhost:8000/health",
+  "configuration": {
+    "requests": 20,
+    "concurrency": 2,
+    "timeout_seconds": 10.0,
+    "expected_statuses": [
+      200,
+      429,
+      504
+    ]
+  },
+  "results": {
+    "completed_requests": 20,
+    "duration_seconds": 2.921,
+    "throughput_requests_per_second": 6.85,
+    "status_counts": {
+      "200": 20
+    },
+    "transport_error_count": 0,
+    "transport_error_samples": [],
+    "unexpected_statuses": [],
+    "latency_ms": {
+      "minimum": 262.6,
+      "p50": 276.08,
+      "p95": 367.76,
+      "p99": 378.41,
+      "maximum": 378.41
+    },
+    "latency_ms_by_status": {
+      "200": {
+        "minimum": 262.6,
+        "p50": 276.08,
+        "p95": 367.76,
+        "p99": 378.41,
+        "maximum": 378.41
+      }
+    },
+    "response_samples_by_status": {
+      "200": "[{\"cargo\":\"Analista de Teste\",\"id\":1,\"nome\":\"Servidor 1\",\"orgao\":\"Orgao de Teste\",\"uf\":\"RS\"},{\"cargo\":\"Analista de Teste\",\"id\":2,\"nome\":\"Servidor 2\",\"orgao\":\"Orgao de Teste\",\"uf\":\"RS\"},{\"cargo\":\"Analista de Teste\",\"id\":3,\"nome\":\"Servidor 3\",\"orgao\":\"Orgao de Teste\",\"uf\":\"RS\"},{\"cargo\":\"Analista de Teste\",\"id\":4,\"nome\":\"Servidor 4\",\"orgao\":\"Orgao de Teste\",\"uf\":\"RS\"},{\"cargo\":\"Analista de Teste\",\"id\":5,\"nome\":\"Servidor 5\",\"orgao\":\"Orgao de Teste\",\"uf\":\"RS\"},{\"cargo\":\"Analista de Teste\",\"id\":6,\"no"
+    },
+    "post_load_health_status": 200,
+    "post_load_health_elapsed_ms": 23.34,
+    "criterion_met": true
+  }
+}
