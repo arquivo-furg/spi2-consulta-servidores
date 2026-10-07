@@ -215,6 +215,61 @@ class SearchEndpointsTestCase(unittest.TestCase):
         )
         mock_get_connection.assert_not_called()
 
+    def test_search_without_filter_returns_bad_request_without_database(self):
+        with patch("app.get_connection") as mock_get_connection:
+            response = self.client.get(
+                "/api/servidores", query_string={"page": "1"}
+            )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "sucesso": False,
+                "mensagem": "informe ao menos um filtro",
+                "dados": None,
+            },
+        )
+        mock_get_connection.assert_not_called()
+
+    def test_method_not_allowed_returns_error_envelope(self):
+        response = self.client.post("/health")
+
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "sucesso": False,
+                "mensagem": "metodo nao permitido",
+                "dados": None,
+            },
+        )
+
+    @patch("app.get_connection")
+    def test_unexpected_database_failure_returns_error_envelope(
+        self, mock_get_connection
+    ):
+        mock_get_connection.side_effect = RuntimeError("database unavailable")
+        propagate_exceptions = app.config["PROPAGATE_EXCEPTIONS"]
+        app.config["PROPAGATE_EXCEPTIONS"] = False
+
+        try:
+            response = self.client.get(
+                "/api/servidores", query_string={"nome": "Ana Silva"}
+            )
+        finally:
+            app.config["PROPAGATE_EXCEPTIONS"] = propagate_exceptions
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "sucesso": False,
+                "mensagem": "erro interno do servidor",
+                "dados": None,
+            },
+        )
+
     def test_concurrency_limit_returns_too_many_requests_envelope(self):
         with patch("app.search_slots") as mock_search_slots:
             mock_search_slots.acquire.return_value = False

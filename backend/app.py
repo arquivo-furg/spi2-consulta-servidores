@@ -97,6 +97,16 @@ def resource_not_found(_error):
     return error_response("recurso nao encontrado", 404)
 
 
+@app.errorhandler(405)
+def method_not_allowed(_error):
+    return error_response("metodo nao permitido", 405)
+
+
+@app.errorhandler(500)
+def internal_server_error(_error):
+    return error_response("erro interno do servidor", 500)
+
+
 def serialize_servers(servers):
     return [
         {"id": id_, "nome": name, "cargo": role, "uf": state, "orgao": agency}
@@ -233,6 +243,12 @@ def search_servers():
 
         if similar is None and "limit" in request.args:
             raise ValueError("parametro limit exige similar")
+
+        if all(
+            value is None
+            for value in (name, role, state, agency, similar)
+        ):
+            raise ValueError("informe ao menos um filtro")
 
         similar_limit = (
             parse_positive_integer("limit", 100, maximum=100)
