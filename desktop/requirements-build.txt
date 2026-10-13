@@ -1,0 +1,2 @@
+# Tkinter/Tcl/Tk é pré-requisito do Python/sistema, não um pacote instalável por pip.
+PyInstaller==6.22.3
