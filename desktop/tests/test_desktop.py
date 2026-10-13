@@ -103,5 +103,102 @@ class ClientTests(TestCase):
                     search('http://localhost', {'uf': 'RS'})
 
 
+# Os widgets do Tk são reais; apenas a função de consulta é substituída nos testes.
+class InterfaceTests(TestCase):
+    def setUp(self):
+        from app import ConsultaApp
+        self.app = ConsultaApp()
+        self.app.update()
+
+    def tearDown(self):
+        self.app.destroy()
+
+    def finish(self):
+        # Processa os eventos até a fila devolver a resposta; não usa uma espera fixa longa.
+        deadline = time.monotonic() + 3
+        while self.app.loading and time.monotonic() < deadline:
+            self.app.update()
+            time.sleep(.01)
+        self.assertFalse(self.app.loading, 'Interface did not finish the request')
+
+    def test_initial_and_empty_filter(self):
+        self.assertIn('começar', self.app.status.get())
+        with patch('app.search') as request:
+            self.app.search_button.invoke()
+        request.assert_not_called()
+        self.assertIn('pelo menos um filtro', self.app.status.get())
+
+    def test_filter_mapping_and_null_uf(self):
+        self.app.fields['nome'].set('%ANA%SILVA%')
+        self.app.fields['cargo'].set('ANALISTA')
+        self.app.mode.set('Similaridade')
+        self.app.limit.set('7')
+        with patch('app.search', return_value=payload()) as request:
+            self.app.search_button.invoke()
+            self.finish()
+        self.assertEqual(request.call_args.args[1]['similar'], '%ANA%SILVA%')
+        self.assertEqual(request.call_args.args[1]['limit'], '7')
+        self.assertNotIn('nome', request.call_args.args[1])
+        row = self.app.table.get_children()[0]
+        self.assertEqual(self.app.table.item(row, 'values')[2], 'Não informada')
+        self.app.table.selection_set(row)
+        self.app.update()
+        self.assertIn('Órgão: ORGAO TESTE', self.app.details.get('1.0', 'end'))
+
+    def test_pagination_keeps_original_filters(self):
+        # Editar UF depois da busca não pode mudar a consulta ao clicar em Próxima.
+        self.app.fields['uf'].set('RS')
+        with patch('app.search', side_effect=lambda api, filters, page: payload(page)) as request:
+            self.app.submit()
+            self.finish()
+            self.app.fields['uf'].set('SC')
+            self.app.next_button.invoke()
+            self.finish()
+            self.assertEqual(request.call_args.args[1]['uf'], 'RS')
+            self.assertEqual(self.app.page, 2)
+            self.app.previous_button.invoke()
+            self.finish()
+            self.assertEqual(self.app.page, 1)
+
+    def test_loading_is_nonblocking_and_prevents_duplicate_requests(self):
+        # Uma resposta atrasada permite conferir o botão bloqueado e a janela responsiva.
+        def delayed(*args):
+            time.sleep(.15)
+            return payload()
+        self.app.fields['uf'].set('RS')
+        with patch('app.search', side_effect=delayed) as request:
+            start = time.monotonic()
+            self.app.submit()
+            self.assertLess(time.monotonic() - start, .1)
+            self.assertEqual(str(self.app.search_button['state']), 'disabled')
+            self.app.submit()
+            self.finish()
+        self.assertEqual(request.call_count, 1)
+
+    def test_error_and_recovery(self):
+        self.app.fields['uf'].set('RS')
+        with patch('app.search', side_effect=ApiError('Serviço indisponível')):
+            self.app.submit()
+            self.finish()
+        self.assertIn('indisponível', self.app.status.get())
+        self.assertEqual(str(self.app.search_button['state']), 'normal')
+        with patch('app.search', return_value=payload()):
+            self.app.submit()
+            self.finish()
+        self.assertTrue(self.app.table.get_children())
+
+    def test_empty_result_and_clear(self):
+        self.app.fields['uf'].set('RS')
+        empty = {'dados': [], 'paginacao': {'pagina': 1, 'total_paginas': 0, 'total_registros': 0}}
+        with patch('app.search', return_value=empty):
+            self.app.submit()
+            self.finish()
+        self.assertIn('Nenhum servidor', self.app.status.get())
+        self.assertEqual(str(self.app.next_button['state']), 'disabled')
+        self.app.clear_button.invoke()
+        self.assertEqual(self.app.fields['uf'].get(), '')
+        self.assertIn('começar', self.app.status.get())
+
+
 if __name__ == '__main__':
     main()
