@@ -1,5 +1,6 @@
 .env
 /.venv/
+/output/
 /dados/
 __pycache__/
 *.py[cod]
