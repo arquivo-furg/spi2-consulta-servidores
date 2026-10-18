@@ -136,6 +136,45 @@ class SearchEndpointsTestCase(unittest.TestCase):
         )
 
     @patch("app.get_connection")
+    def test_similar_pattern_preserves_wildcards(self, mock_get_connection):
+        cursor = self.database_cursor(mock_get_connection)
+        cursor.fetchall.return_value = [(1, "Ana Silva", "Analista", "RS", "Orgao")]
+
+        response = self.client.get(
+            "/api/servidores", query_string={"similar": "%ANA%", "limit": "1"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        query, values = cursor.execute.call_args.args
+        self.assertIn("servidor.nome ILIKE %s", query)
+        self.assertEqual(values, ("%ANA%", 1))
+
+    @patch("app.get_connection")
+    def test_similar_pattern_pagination_uses_the_same_filter(self, mock_get_connection):
+        # COUNT e SELECT precisam receber o mesmo padrão, senão o total diverge da lista.
+        cursor = self.database_cursor(mock_get_connection)
+        cursor.fetchone.return_value = (2,)
+        cursor.fetchall.return_value = [(2, "Ana Silva", "Analista", "SP", "Orgao")]
+
+        response = self.client.get("/api/servidores", query_string={
+            "similar": "ANA%SILVA", "page": "2", "page_size": "1", "limit": "2"
+        })
+
+        self.assertEqual(response.status_code, 200)
+        count_call, search_call = cursor.execute.call_args_list
+        self.assertIn("servidor.nome ILIKE %s", count_call.args[0])
+        self.assertIn("servidor.nome ILIKE %s", search_call.args[0])
+        self.assertEqual(count_call.args[1], ("ANA%SILVA",))
+        self.assertEqual(search_call.args[1], ("ANA%SILVA", 1, 1))
+
+    def test_similar_with_only_wildcards_is_rejected(self):
+        with patch("app.get_connection") as connection:
+            response = self.client.get("/api/servidores", query_string={"similar": "%% %"})
+
+        self.assertEqual(response.status_code, 400)
+        connection.assert_not_called()
+
+    @patch("app.get_connection")
     def test_empty_search_returns_not_found_envelope(self, mock_get_connection):
         cursor = self.database_cursor(mock_get_connection)
         cursor.fetchall.return_value = []
