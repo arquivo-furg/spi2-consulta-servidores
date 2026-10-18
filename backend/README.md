@@ -37,7 +37,7 @@ combinados e, nesse caso, o resultado precisa atender a todos eles.
 | `cargo` | Descrição exata do cargo | Pode ser combinado com os demais filtros |
 | `uf` | Sigla da unidade federativa | Duas letras; a API normaliza para maiúsculas |
 | `orgao` | Nome exato do órgão | Pode ser combinado com os demais filtros |
-| `similar` | Nome aproximado para busca por similaridade | Pode ser combinado com os filtros exatos |
+| `similar` | Nome aproximado ou padrão com `%` | Com `%`, respeita a posição e a ordem dos trechos; sem `%`, usa similaridade por trigramas |
 | `limit` | Limite da busca por similaridade | Inteiro de 1 a 100; padrão 100; exige `similar` |
 | `page` | Página solicitada | Inteiro positivo; padrão 1 quando `page_size` é informado |
 | `page_size` | Quantidade de registros por página | Inteiro de 1 a 100; padrão 100 quando `page` é informado |

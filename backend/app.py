@@ -116,15 +116,18 @@ def serialize_servers(servers):
 
 def normalize_search_value(parameter, value):
     normalized = " ".join(value.split())
-
-    if parameter == "similar":
-        normalized = " ".join(normalized.replace("%", " ").split())
+    # Valida os trechos do nome sem remover os curingas do valor consultado.
+    validation_value = (
+        " ".join(normalized.replace("%", " ").split())
+        if parameter == "similar"
+        else normalized
+    )
 
     if (
-        not normalized
-        or normalized in {"'", '"'}
-        or SEARCH_VALUE_PATTERN.fullmatch(normalized) is None
-        or SQL_INJECTION_PATTERN.search(normalized) is not None
+        not validation_value
+        or validation_value in {"'", '"'}
+        or SEARCH_VALUE_PATTERN.fullmatch(validation_value) is None
+        or SQL_INJECTION_PATTERN.search(validation_value) is not None
     ):
         raise ValueError(f"parametro invalido: {parameter}")
 
@@ -279,8 +282,12 @@ def search_servers():
             conditions.append(f"{column} = %s")
             values.append(value)
 
+    wildcard_search = similar is not None and "%" in similar
     if similar is not None:
-        conditions.append("servidor.nome %% %s")
+        # Com %, respeita o padrão informado; sem %, mantém a busca aproximada.
+        conditions.append(
+            "servidor.nome ILIKE %s" if wildcard_search else "servidor.nome %% %s"
+        )
         values.append(similar)
 
     if not conditions:
@@ -294,7 +301,7 @@ def search_servers():
     limit_clause = ""
     offset_clause = ""
 
-    if similar is not None:
+    if similar is not None and not wildcard_search:
         order_clause = "servidor.nome <-> %s, servidor.id"
         values.append(similar)
     total = None
