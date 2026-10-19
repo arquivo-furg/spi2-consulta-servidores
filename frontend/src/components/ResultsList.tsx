@@ -8,6 +8,7 @@ export interface Servidor {
 
 interface ResultsListProps {
   errorMessage: string | null
+  hasSearched: boolean
   isLoading: boolean
   resultados: Servidor[]
   totalResultados: number
@@ -33,7 +34,9 @@ function ServidorDetails({ servidor }: ServidorDetailsProps) {
         <dt className="text-xs font-semibold uppercase tracking-wide text-body">
           UF
         </dt>
-        <dd className="mt-1 text-[15px] text-body">{servidor.uf}</dd>
+        <dd className="mt-1 text-[15px] text-body">
+          {servidor.uf ?? 'Não informada'}
+        </dd>
       </div>
       <div>
         <dt className="text-xs font-semibold uppercase tracking-wide text-body">
@@ -47,7 +50,8 @@ function ServidorDetails({ servidor }: ServidorDetailsProps) {
   )
 }
 
-function EmptyResults() {
+// Antes da primeira busca, orientar o preenchimento em vez de anunciar resultado vazio.
+function EmptyResults({ hasSearched }: { hasSearched: boolean }) {
   return (
     <section
       aria-labelledby="results-feedback-title"
@@ -58,10 +62,12 @@ function EmptyResults() {
         className="text-xl font-semibold text-primary sm:text-[23px]"
         id="results-feedback-title"
       >
-        Nenhum resultado encontrado
+        {hasSearched ? 'Nenhum resultado encontrado' : 'Inicie uma busca'}
       </h2>
       <p className="mt-2 text-[15px] leading-6 text-body">
-        Não há registros para os filtros informados.
+        {hasSearched
+          ? 'Não há registros para os filtros informados.'
+          : 'Preencha ao menos um dos filtros acima e clique em Buscar.'}
       </p>
     </section>
   )
@@ -128,6 +134,7 @@ function SingleResult({ servidor }: ServidorDetailsProps) {
 
 export function ResultsList({
   errorMessage,
+  hasSearched,
   isLoading,
   resultados,
   totalResultados,
@@ -141,7 +148,7 @@ export function ResultsList({
   }
 
   if (resultados.length === 0) {
-    return <EmptyResults />
+    return <EmptyResults hasSearched={hasSearched} />
   }
 
   // Uma última página com uma linha não significa que só existe um resultado no total.

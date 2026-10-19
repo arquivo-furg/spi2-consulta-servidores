@@ -239,6 +239,7 @@ function App() {
       </section>
       <ResultsList
         errorMessage={mensagemErro}
+        hasSearched={filtros !== undefined}
         isLoading={emCarregamento}
         resultados={resultados}
         totalResultados={totalResultados}
