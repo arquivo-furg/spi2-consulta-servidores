@@ -9,9 +9,23 @@ import os
 from pathlib import Path
 
 import psycopg
+from psycopg.conninfo import make_conninfo
 
 
 HEADERS = ("origem", "arquivo_origem", "linha_origem", "nome", "cargo", "orgao", "uf")
+
+
+def database_connection_string(database_url: str | None) -> str:
+    if database_url or os.environ.get("DATABASE_URL"):
+        return database_url or os.environ["DATABASE_URL"]
+
+    # Dentro do Compose, aproveita as mesmas variáveis da API, com host db e porta 5432.
+    fields = {"host": "DB_HOST", "port": "DB_PORT", "dbname": "DB_NAME",
+              "user": "DB_USER", "password": "DB_PASSWORD"}
+    if not all(os.environ.get(variable) for variable in fields.values()):
+        raise ValueError("informe --database-url, DATABASE_URL ou todas as variaveis DB_HOST, DB_PORT, DB_NAME, DB_USER e DB_PASSWORD")
+    # O driver faz o escape; senha com espaços ou símbolos não vira uma URL inválida.
+    return make_conninfo(**{field: os.environ[variable] for field, variable in fields.items()})
 
 
 def load_staging(cursor: psycopg.Cursor[tuple[object, ...]], path: Path) -> None:
@@ -148,16 +162,13 @@ def import_data(database_url: str, path: Path) -> dict[str, object]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--arquivo", type=Path, required=True)
-    parser.add_argument("--database-url", default=os.environ.get("DATABASE_URL"))
+    parser.add_argument("--database-url")
     args = parser.parse_args()
 
     if not args.arquivo.is_file():
         parser.error(f"arquivo tratado nao encontrado: {args.arquivo}")
-    if not args.database_url:
-        parser.error("informe --database-url ou a variavel DATABASE_URL")
-
     try:
-        result = import_data(args.database_url, args.arquivo)
+        result = import_data(database_connection_string(args.database_url), args.arquivo)
     except (ValueError, psycopg.Error) as error:
         parser.error(str(error))
     print(json.dumps(result, ensure_ascii=False))
