@@ -55,7 +55,8 @@ A compilação Linux requer Tkinter, `binutils` e a biblioteca compartilhada
 do Python instalados no sistema (no Ubuntu 22.04: `python3-tk binutils libpython3.10`).
 O PyInstaller inclui Python e Tcl/Tk no executável, mas não a API nem os dados.
 Não há compilação cruzada. Os arquivos gerados não fazem parte do código versionado.
-`output/` é ignorada pelo Git em qualquer clone.
+O build verifica Tkinter/Tcl antes de chamar o PyInstaller e para se o componente
+estiver ausente ou quebrado. `output/` é ignorada pelo Git em qualquer clone.
 
 Se um executável pronto pedir o módulo `tkinter`, ele foi empacotado sem esse
 componente: corrija o ambiente de compilação e gere outro pacote. Instalar
