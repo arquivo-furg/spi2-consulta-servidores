@@ -11,6 +11,8 @@ services:
     # Publica só na própria máquina. A API continua usando db:5432 internamente.
     ports:
       - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -55,3 +57,6 @@ services:
       API_PROXY_TARGET: http://backend:8000
     ports:
       - "5173:4173"
+
+volumes:
+  postgres_data:

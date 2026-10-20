@@ -67,7 +67,7 @@ Mudanças nesses campos permanecem como registros distintos. Os arquivos brutos
 são lidos sem alterações, e o CSV intermediário é descartado ao terminar.
 
 Nas próximas inicializações, o banco já preenchido é reutilizado, sem tratar
-ou importar novamente. Retome os mesmos contêineres com `stop/start` para preservar a carga.
+ou importar novamente. Os dados ficam no volume nomeado do PostgreSQL.
 
 ### Conferir o funcionamento
 
@@ -78,7 +78,9 @@ Para verificar o estado dos serviços, use `docker compose ps`;
 para interromper e retomar os mesmos containers, use `docker compose stop`
 e depois `docker compose start`.
 
-Faça backup antes de remover um banco necessário.
+`docker compose down` remove os contêineres, mas preserva o volume nomeado do
+banco. Não use `docker compose down -v` em um banco que precise guardar: essa
+opção apaga também os volumes. Faça backup antes de remover dados necessários.
 
 O cliente desktop é executado fora do Docker. Os pacotes Windows e Linux
 incluem seu próprio Python/Tkinter; para rodar ou compilar pelo código, siga
