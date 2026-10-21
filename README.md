@@ -4,6 +4,12 @@ Trabalho de Sistemas para Internet II, desenvolvido por Pedro Machado, Marcos
 Freitas e Alexsander Santos. A aplicação consulta informações dos conjuntos de
 Aposentados e Carreiras/Cargos do Portal Brasileiro de Dados Abertos.
 
+Repositório no GitHub: [arquivo-furg/spi2-consulta-servidores](https://github.com/arquivo-furg/spi2-consulta-servidores).
+
+Executáveis prontos para Windows e Linux: [Entrega final](https://github.com/arquivo-furg/spi2-consulta-servidores/releases/tag/entrega-final).
+O ZIP de envio contém o código-fonte, a documentação e o relatório. Para usar o
+desktop sem compilar, baixe e extraia separadamente o pacote do seu sistema.
+
 - `backend/`: API em Python, Flask e Gunicorn.
 - `frontend/`: interface em React, TypeScript e Tailwind.
 - `desktop/`: cliente Python/Tkinter para Windows e Linux, usando a mesma API.
